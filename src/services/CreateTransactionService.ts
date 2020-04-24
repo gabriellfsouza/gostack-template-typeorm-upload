@@ -24,16 +24,16 @@ class CreateTransactionService {
     const categoriesRepository = getRepository(Category);
     const transactionsRepository = getCustomRepository(TransactionsRepository);
 
-    const balance = await transactionsRepository.getBalance();
-    if (type === 'outcome' && balance.total - value < 0)
-      throw new AppError(`You can't spend more than your balance.`);
-
     const existCategory = await categoriesRepository.findOne({
       where: { title: category },
     });
     const transactionCategory =
       existCategory || categoriesRepository.create({ title: category });
     if (!existCategory) await categoriesRepository.save(transactionCategory);
+
+    const balance = await transactionsRepository.getBalance();
+    if (type === 'outcome' && balance.total - value < 0)
+      throw new AppError(`You can't spend more than your balance.`);
 
     const transaction = transactionsRepository.create({
       title,
